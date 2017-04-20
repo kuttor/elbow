@@ -1,0 +1,99 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+#----------------------------------------------------------------------------
+# Help
+#----------------------------------------------------------------------------
+
+"""
+elbs.py
+
+Usage:
+  elbs list ls | --version
+
+Options:
+  -h --help       Show this screen
+  -v --version    Show version information
+
+To-do:
+  Options:
+  --region        Set AWS region
+  --profile       Set AWS profile
+
+  Arguments:
+  list ls
+  show sh
+"""
+
+#----------------------------------------------------------------------------
+# Credits
+#----------------------------------------------------------------------------
+
+__author__     = 'Andrew Kuttor'
+__maintainer__ = 'Andrew Kuttor'
+__github__     = 'www.github.com/kuttor'
+__facebook__   = 'www.facebook.com/kuttor'
+__email__      = 'andrew.kuttor@gmail.com'
+__version__    = '1.0.0'
+
+#----------------------------------------------------------------------------
+# Imports
+#----------------------------------------------------------------------------
+
+from fire import Fire
+from boto3 import client
+import texttable as tt
+
+#----------------------------------------------------------------------------
+# Main
+#----------------------------------------------------------------------------
+
+def print_table(lines, separate_head=True):
+      """ Prints a formatted table given a 2 dimensional array """
+      #Count the column width
+      widths = []
+      for line in lines:
+          for i,size in enumerate([len(x) for x in line]):
+              while i >= len(widths):
+                  widths.append(0)
+              if size > widths[i]:
+                  widths[i] = size
+
+      #Generate the format string to pad the columns
+      print_string = ""
+      for i,width in enumerate(widths):
+          print_string += "{" + str(i) + ":" + str(width) + "} | "
+      if (len(print_string) == 0):
+          return
+      print_string = print_string[:-3]
+
+      #Print the actual data
+      for i,line in enumerate(lines):
+          print(print_string.format(*line))
+          if (i == 0 and separate_head):
+              print("-"*(sum(widths)+3*(len(widths)-1)))
+
+
+def list():
+    """ List ELBs """
+    json = client('elb').describe_load_balancers()
+
+    names = []
+    for elbs in (json["LoadBalancerDescriptions"]):
+        names.append(elbs["LoadBalancerName"])
+
+    names_table = []
+    total = str(len(names))
+    names_table.append((total, "Elastic Load-Balancer Names"))
+    [names_table.append(("", name)) for name in names]
+
+    print_table(names_table)
+
+
+def main():
+    print ""
+    list()
+
+
+if __name__ == '__main__':
+    main()
