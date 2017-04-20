@@ -84,7 +84,7 @@ def list():
 
     names_table = []
     total = str(len(names))
-    names_table.append((total, "Elastic Load-Balancer Names"))
+    names_table.append((total, "ELB Names"))
     [names_table.append(("", name)) for name in names]
 
     print_table(names_table)
